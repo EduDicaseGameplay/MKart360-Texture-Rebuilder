@@ -1,0 +1,244 @@
+COMO USAR
+
+1. Instale o Visual Studio 2010 e o Xbox 360 XDK ou SDK
+
+Eles são necessários para compilar o projeto para Xbox 360.
+
+------------------------------------------------------------------------
+
+2. Copie o Patch
+
+Copie o patch para dentro da pasta MKart360-Texture-Rebuilder.
+
+------------------------------------------------------------------------
+
+3. Adicione sua ROM
+
+Renomeie sua ROM e coloque-a aqui:
+
+MKart360-Texture-Rebuilder\mk64-master\baserom.br.z64
+
+------------------------------------------------------------------------
+
+4. Instale o Python
+
+Você só precisa fazer isso uma vez.
+
+Execute no PowerShell:
+
+winget install Python.Python.3
+
+Feche e abra o PowerShell novamente e verifique a instalação:
+
+py --version
+
+Se aparecer algo semelhante a:
+
+Python 3.13.x
+
+O Python foi instalado corretamente.
+
+------------------------------------------------------------------------
+
+5. Instale o Pillow
+
+Você só precisa fazer isso uma vez.
+
+Execute:
+
+pip install pillow
+
+------------------------------------------------------------------------
+
+6. Configure as Ferramentas de Assets do Windows
+
+Execute:
+
+powershell -ExecutionPolicy Bypass -File ".\xbox360\setup_windows_asset_tools.ps1" -SkipTorch
+
+Isso prepara as ferramentas necessárias para trabalhar com os assets e as texturas do MK64 no Windows.
+
+------------------------------------------------------------------------
+
+7. Prepare a ROM e os Assets
+
+Execute:
+
+py .\PUBLIC_PREPARE_MK64_ASSETS.py
+
+Essa etapa prepara a ROM e os assets necessários para o fluxo de extração e edição das texturas.
+
+------------------------------------------------------------------------
+
+8. Extraia as Texturas
+
+Execute:
+
+py .\EXTRACT_MK64_TEXTURES.py
+
+O script extrai as texturas e também prepara e sincroniza automaticamente os manifestos necessários para o sistema de texturas HD.
+
+IMPORTANTE:
+
+Não é necessário copiar manualmente nenhum arquivo .json da pasta manifest_runtime para extracted_textures.
+
+O EXTRACT_MK64_TEXTURES.py faz essa sincronização automaticamente.
+
+Se o script detectar que extracted_textures já foi extraído, ele entra em modo de continuação e evita sobrescrever as texturas que você já editou.
+
+------------------------------------------------------------------------
+
+9. Feche o PowerShell e Edite as Texturas
+
+Depois que a extração terminar, você pode fechar o PowerShell.
+
+A partir desta etapa, o objetivo é editar as texturas extraídas para depois reconstruí-las dentro da ROM. Não é necessário continuar o fluxo de texturas HD para realizar esse procedimento.
+
+Abra a pasta:
+
+MKart360-Texture-Rebuilder\mk64-master\extracted_textures
+
+Dentro dela estarão as texturas extraídas da ROM.
+
+Edite as imagens utilizando seu editor de imagens preferido.
+
+IMPORTANTE:
+
+Ao editar as texturas, respeite as características estruturais de cada imagem original.
+
+- Dimensões: mantenha a largura e a altura originais de cada textura, salvo quando houver suporte confirmado para alterações.
+- Transparência: preserve os canais de transparência e as áreas transparentes originais.
+- Opacidade: mantenha os níveis de opacidade necessários para que a imagem seja exibida corretamente no jogo.
+- Cores: respeite as características de cores e o formato utilizado pela textura original.
+- Formato: preserve o formato de arquivo esperado pelo sistema de extração e reconstrução.
+- Organização: não altere desnecessariamente os nomes dos arquivos nem a estrutura das pastas.
+- Elementos gráficos: tenha cuidado com letras, contornos, sombras e áreas que utilizam transparência, pois alterações nesses elementos podem provocar falhas visuais no jogo.
+
+Não substitua as dimensões, a transparência ou outras características técnicas das imagens sem ter certeza de que o processo de reconstrução oferece suporte a essas alterações.
+
+Quando terminar de editar as texturas, salve as imagens e confira se os arquivos continuam na estrutura de pastas utilizada pelo extrator.
+
+------------------------------------------------------------------------
+
+10. Execute o Teste de Reconstrução das Texturas
+
+Antes de gerar a ROM modificada, faça um teste para verificar se as texturas editadas podem ser reconstruídas sem aplicar o patch à ROM.
+
+Abra o PowerShell novamente e entre na pasta mk64-master do projeto.
+
+Execute:
+
+python ROM_REPACK_TEXTURES.py --rom baserom.br.z64 --extracted extracted_textures
+
+Esse comando executa o teste de reconstrução utilizando a ROM original e a pasta de texturas editadas.
+
+O objetivo é verificar se as imagens editadas são compatíveis com o processo de reconstrução e com as limitações estruturais da ROM.
+
+IMPORTANTE:
+
+Esse comando é apenas o teste inicial. Ele não corresponde à geração final da ROM modificada com o patch.
+
+Se ocorrer algum erro, leia a mensagem apresentada no PowerShell e identifique o que precisa ser corrigido antes de continuar.
+
+Possíveis causas incluem dimensões incompatíveis, transparência ou formato de imagem inadequados, dados que não podem ser reconstruídos corretamente ou limitações estruturais relacionadas ao espaço disponível na ROM.
+
+Corrija os problemas identificados e execute novamente o teste até que o processo termine sem erros.
+
+------------------------------------------------------------------------
+
+11. Gere a Nova ROM com o Patch
+
+Depois que o teste de reconstrução terminar corretamente, execute o comando abaixo para gerar a ROM modificada:
+
+python ROM_REPACK_TEXTURES.py --rom baserom.br.z64 --extracted extracted_textures --patch --output baserom_MOD.z64
+
+Esse comando utiliza a ROM original, incorpora as texturas editadas, aplica o patch solicitado e define o nome do arquivo de saída como baserom_MOD.z64.
+
+Aguarde até que o processamento termine.
+
+Se a operação for concluída corretamente, será gerada uma nova ROM com o seguinte nome:
+
+baserom_MOD.z64
+
+O arquivo será salvo no diretório de trabalho utilizado pelo comando, normalmente a pasta mk64-master, desde que o script não defina outro local de saída.
+
+IMPORTANTE:
+
+Se a reconstrução falhar, a ROM não for gerada corretamente ou o script apresentar erros relacionados às limitações estruturais da ROM, não considere o procedimento concluído.
+
+Será necessário analisar a mensagem de erro e corrigir o problema identificado. Dependendo do erro, pode ser necessário ajustar as texturas, preservar características da ROM original ou resolver incompatibilidades no processo de reconstrução.
+
+Não tente resolver esses problemas alterando aleatoriamente as dimensões das imagens ou removendo dados da ROM, pois isso pode causar falhas no jogo.
+
+------------------------------------------------------------------------
+
+12. Teste a ROM Modificada no Console ou Emulador
+
+Depois que a ROM baserom_MOD.z64 for gerada corretamente, copie o arquivo para o local utilizado pelo seu ambiente de teste.
+
+Execute o Mario Kart 64 no console Xbox 360 ou no emulador compatível que você utiliza para testar o projeto.
+
+Verifique se as texturas aparecem corretamente durante o jogo.
+
+Confira especialmente:
+
+- Menus e textos.
+- Letras e caracteres que utilizam transparência.
+- Imagens com áreas transparentes.
+- Texturas dos personagens e dos karts.
+- Cenários e pistas.
+- Elementos gráficos que foram modificados durante a edição.
+
+Se alguma textura apresentar defeitos, compare a imagem exibida no jogo com a textura editada e com a imagem original extraída da ROM.
+
+Caso a ROM apresente erros, volte à pasta extracted_textures, corrija as imagens necessárias e repita o procedimento de teste e reconstrução.
+
+------------------------------------------------------------------------
+
+RESUMO DOS COMANDOS
+
+Instalar o Python:
+
+winget install Python.Python.3
+
+Verificar o Python:
+
+py --version
+
+Instalar o Pillow:
+
+pip install pillow
+
+Configurar as ferramentas de assets:
+
+powershell -ExecutionPolicy Bypass -File ".\xbox360\setup_windows_asset_tools.ps1" -SkipTorch
+
+Preparar a ROM e os assets:
+
+py .\PUBLIC_PREPARE_MK64_ASSETS.py
+
+Extrair as texturas:
+
+py .\EXTRACT_MK64_TEXTURES.py
+
+Testar a reconstrução das texturas:
+
+python ROM_REPACK_TEXTURES.py --rom baserom.br.z64 --extracted extracted_textures
+
+Gerar a ROM modificada com o patch:
+
+python ROM_REPACK_TEXTURES.py --rom baserom.br.z64 --extracted extracted_textures --patch --output baserom_MOD.z64
+
+------------------------------------------------------------------------
+
+OBSERVAÇÕES IMPORTANTES
+
+- Utilize uma cópia de segurança da ROM original antes de iniciar o procedimento.
+- Não edite diretamente a ROM original.
+- Preserve as dimensões, a transparência, a opacidade e as demais características estruturais das texturas.
+- Não é necessário copiar manualmente os arquivos JSON da pasta manifest_runtime.
+- O teste de reconstrução deve ser executado antes da geração da ROM modificada.
+- Se houver erros, corrija as incompatibilidades identificadas antes de gerar a versão final.
+- A ROM gerada deve ser testada no console ou emulador para confirmar que as alterações funcionam corretamente.
+
+O objetivo deste procedimento é permitir a extração, a edição e a reconstrução das texturas de uma ROM do Mario Kart 64, gerando uma nova ROM modificada para testes no Xbox 360 ou em um emulador compatível.
